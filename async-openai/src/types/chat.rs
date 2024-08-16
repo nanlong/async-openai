@@ -88,11 +88,11 @@ pub struct FunctionCall {
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct CompletionUsage {
     /// Number of tokens in the prompt.
-    pub prompt_tokens: u32,
+    pub prompt_tokens: Option<u32>,
     /// Number of tokens in the generated completion.
-    pub completion_tokens: u32,
+    pub completion_tokens: Option<u32>,
     /// Total number of tokens used in the request (prompt + completion).
-    pub total_tokens: u32,
+    pub total_tokens: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -578,7 +578,7 @@ pub struct CreateChatCompletionResponse {
     /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
     pub choices: Vec<ChatChoice>,
     /// The Unix timestamp (in seconds) of when the chat completion was created.
-    pub created: u32,
+    pub created: Option<u32>,
     /// The model used for the chat completion.
     pub model: Option<String>,
     /// This fingerprint represents the backend configuration that the model runs with.
@@ -587,7 +587,7 @@ pub struct CreateChatCompletionResponse {
     pub system_fingerprint: Option<String>,
 
     /// The object type, which is always `chat.completion`.
-    pub object: String,
+    pub object: Option<String>,
     pub usage: Option<CompletionUsage>,
 }
 

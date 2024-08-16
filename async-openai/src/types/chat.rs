@@ -2,7 +2,7 @@ use std::{collections::HashMap, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::error::OpenAIError;
 
@@ -630,11 +630,26 @@ pub struct ChatCompletionStreamResponseDelta {
     pub role: Option<Role>,
 }
 
+fn empty_string_as_none_finish_reason<'de, D>(
+    deserializer: D,
+) -> Result<Option<FinishReason>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let opt = Option::<String>::deserialize(deserializer)?;
+    Ok(match opt {
+        Some(ref s) if s.is_empty() => None,
+        Some(s) => Some(serde_json::from_str(&s).map_err(serde::de::Error::custom)?),
+        None => None,
+    })
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoiceStream {
     /// The index of the choice in the list of choices.
     pub index: u32,
     pub delta: ChatCompletionStreamResponseDelta,
+    #[serde(deserialize_with = "empty_string_as_none_finish_reason")]
     pub finish_reason: Option<FinishReason>,
     /// Log probability information for the choice.
     pub logprobs: Option<ChatChoiceLogprobs>,
